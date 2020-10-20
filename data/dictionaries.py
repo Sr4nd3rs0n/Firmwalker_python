@@ -1,0 +1,16 @@
+
+DICTIONARIES = {'binaries':['ssh','sshd','scp','sftp','tftp','dropbear',
+                            'busybox','telnet','telnetd','openssl'],
+                'dbfiles':['.db','.sqlite','.sqlite3'],
+                'files':['.conf','.cfg','.ini'],
+                'passfiles':['passwd','shadow','.psk'],
+                'patterns':['upgrade','admin','root','password','passwd','pwd',
+                            'dropbear','ssl','private key','telnet','secret',
+                            'pgp','gpg','token','api key','oauth'],
+                'sshfiles':['authorized_keys','*authorized_keys*','host_key',
+                            '*host_key*','id_rsa','*id_rsa*','id_dsa',
+                            '*id_dsa*','.pub'],
+                'sslfiles':['.crt','.pem','.cer','.p7b','.p12','.key'],
+                'webservers':['apache','lighttpd','alphapd','httpd'],
+                'shellscripts':['.sh'],
+                'binfiles':['.bin']}
