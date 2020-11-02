@@ -14,8 +14,8 @@ from yara_files.yara_python import *
 
 BASE_FILE = os.path.basename(__file__)
 
-dic_regex = {'ip':'"\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"', 
-             'url':'"(http|https)://[^/\\"]+"', 
+dic_regex = {'ip':'"\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"',
+             'url':'"(http|https)://[^/\\"]+"',
              'email':'"([[:alnum:]_.-]+@[[:alnum:]_.-]+?\\.[[:alpha:].]{2,6})"'}
 
 #Usage description
@@ -33,23 +33,18 @@ def check_args():
         return True
     else:
         return False
-        
+
 def get_filename(binary):
     filename = binary
-    #print(filename)
     first, *middle, last = filename.split('.')
-    #print(first)
-    #print(last)
     withoutExtention = ""
-    if len(middle) != 0: 
-        withoutExtention += first              
+    if len(middle) != 0:
+        withoutExtention += first
         for value in middle:
             withoutExtention += value + '.'
-        #print(withoutExtention)
     else:
         withoutExtention += first + '.'
-        #print(withoutExtention)
-    #filename = withoutExtention + extention
+
     return withoutExtention
 
 def find_file(dir_init, shortname):
@@ -67,7 +62,6 @@ def generate_pdf(binwalk_txt, analysis_txt, yara_txt):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Helvetica", size = 17)
-    #pdf.write(5, 'Esto es la portada')
     pdf.cell(200, 15, txt = 'This is the presentation page', ln = 1, align = 'C')
 
     pdf.add_page()
@@ -79,85 +73,84 @@ def generate_pdf(binwalk_txt, analysis_txt, yara_txt):
     for f in file1:
         pdf.multi_cell(200, 10, str(f), 'l')
     file1.close()
-    
+
     pdf.add_page()
     pdf.set_font("Helvetica", size=17)
     pdf.cell(200, 15, txt='Firmwalker Analysis', ln=1, align='C')
     pdf.set_font("Helvetica", size=10)
 
     file2 = open(analysis_txt, 'r')
-    #print(file2)
+
     for f2 in file2:
         pdf.multi_cell(200, 5, str(f2), 'l')
     file2.close()
-    
+
     pdf.add_page()
     pdf.set_font("Helvetica", size=17)
     pdf.cell(200, 15, txt='Yara Analysis', ln=1, align='C')
     pdf.set_font("Helvetica", size=10)
 
     file3 = open(yara_txt, 'r')
-    #print(file2)
+
     for f3 in file3:
         pdf.multi_cell(200, 5, str(f3), 'l')
     file3.close()
-    
+
     pdf.output("final_report.pdf")
 
 
-###############################################    
+###############################################
 
 
 if __name__ == "__main__":
-    #print(sys.argv[2])
-    #usage()
+
     path_fs = ""
     interesting_files = ['.html', '.sh', '.php', '.js', '.jsp']
-    
+
     if check_args():
-        #print(len(sys.argv))
-        #If the argv 2 is -r flag and the chosen option is txt --> generate txt report.        
+        #If the argv 2 is -r flag and the chosen option is txt --> generate txt report.
         if len(sys.argv) == 4:
             if sys.argv[2] == "-r" and sys.argv[3] == "txt":
-               
+
                 filename = get_filename(sys.argv[1])
-                #print("HOLII!!: {}".format(filename))
                 print("Executing Binwalk, please, wait a minute.\n")
                 path_fs = binwalk_execution(sys.argv[1], filename, 'txt')
+
                 print("Executing Firmwalker analysis, please, wait a minute.\n")
                 analysis(path_fs, DICTIONARIES, dic_regex, filename + 'txt', 'txt')
-                
+
                 print("Checking Yara.\n")
                 check_yara()
-                
+
                 if not os.listdir("yara_files/rules"):
                     print("Downloading rules, give us a minute... \n")
 
 		        # For the directory of the script being run
                 script_path = str(pathlib.Path(__file__).parent.absolute())
-                
+
                 # current working directory
-                current_path = str(pathlib.Path().absolute())
-                rules_path = current_path + "yara_files/rules"
-                output_path = current_path + "yara_files/output"
+                #current_path = str(pathlib.Path().absolute())
+                #rules_path = current_path + "yara_files/rules"
+                #output_path = current_path + "yara_files/output"
+
                 print("Writing Yara results in yara_txt.txt\n")
                 scan_directory(path_fs, 'txt')
                 print("Done.\n")
-                
+
             #If the argv 2 is -r flag and the chosen option is pdf --> generate pdf report.
             elif sys.argv[2] == "-r" and sys.argv[3] == "pdf":
                 filename = get_filename(sys.argv[1])
                 filenameaux = filename.split('.')
                 print(filenameaux[0])
-                #print("HOLII!!: {}".format(filename))
                 print("Executing Binwalk, please, wait a minute.\n")
                 path_fs = binwalk_execution(sys.argv[1], filename, 'pdf')
+
                 print("Executing Firmwalker analysis, please, wait a minute.\n")
                 analysis(path_fs, DICTIONARIES, dic_regex, filenameaux[0]+'_analysis.txt', 'pdf')
-                
+
                 print("Checking Yara.\n")
                 check_yara()
-                
+
                 if not os.listdir("yara_files/rules"):
                     print("Downloading rules, give us a minute... \n")
 
@@ -165,43 +158,40 @@ if __name__ == "__main__":
                 print("Writing Binwalk results in {}\n".format(binwalk_text))
                 analysis_text = find_file(os.getcwd(), '_analysis.txt')
                 print("Writing Firmwalker results in {}\n".format(analysis_text))
-                
+
 		        # For the directory of the script being run
                 script_path = str(pathlib.Path(__file__).parent.absolute())
-                
+
                 # current working directory
-                current_path = str(pathlib.Path().absolute())
-                rules_path = current_path + "yara_files/rules"
-                output_path = current_path + "yara_files/output"
+                #current_path = str(pathlib.Path().absolute())
+                #rules_path = current_path + "yara_files/rules"
+                #output_path = current_path + "yara_files/output"
+
                 print("Writing Yara results in yara_txt.txt\n")
                 scan_directory(path_fs, 'txt')
-                
+
                 print("Checking FDF.\n")
                 check_fpdf()
 
-
-                #print(analysis_text)
                 try:
                     print("Writing report on PDF format, please wait just a little more.\n")
                     generate_pdf(binwalk_text, analysis_text, "yara_txt.txt")
                 except Exception as ex:
                     print(ex)
-                
+
                 print("Removing binwalk txt file.\n")
                 os.remove(binwalk_text)
                 print("Removing analysis txt file.\n")
                 os.remove(analysis_text)
                 print("Removing yara txt file.\n")
                 os.remove("yara_txt.txt")
-                
+
                 print("Done.\n")
-                
+
         elif len(sys.argv) == 2:
-            #print("Entro")
-            
+
             filename = get_filename(sys.argv[1])
             path_fs = binwalk_execution(sys.argv[1], filename, None)
-            print(path_fs)
             
             analysis(path_fs, DICTIONARIES, dic_regex, None, None)
             #if not os.path.exists("rules"):
@@ -209,10 +199,10 @@ if __name__ == "__main__":
 
             #if not os.path.exists("rules_compiled"):
             #    os.mkdir("rules_compiled")
-            
+
             print("Checking Yara.\n")
             check_yara()
-            
+
             # At this point, we've already downloaded the yara rule from github
             if not os.listdir("yara_files/rules"):
                 print("Downloading rules, give us a minute... \n")
@@ -221,27 +211,14 @@ if __name__ == "__main__":
             script_path = str(pathlib.Path(__file__).parent.absolute())
 
             # current working directory
-            current_path = str(pathlib.Path().absolute())
-            rules_path = current_path + "yara_files/rules"
-            output_path = current_path + "yara_files/output"
+            #current_path = str(pathlib.Path().absolute())
+            #rules_path = current_path + "yara_files/rules"
+            #output_path = current_path + "yara_files/output"
 
             scan_directory(path_fs, None)
-        
+
         else:
             print("The only two reports format supported are: txt and pdf")
-        
+
     else:
         usage()
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
